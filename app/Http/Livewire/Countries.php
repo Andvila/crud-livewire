@@ -12,14 +12,23 @@ class Countries extends Component
     use WithPagination;
 
     public $continent, $country_name, $capital_city;
-    public $upd_continent, $upd_country_name, $upd_capital_city, $cid;
-    protected $listeners = ['delete', 'deleteCheckedCountries'];
+    public $cid;
     public $checkedCountry = [];
     public $byContinent = null;
     public $perPage = 5;
     public $orderBy = "country_name";
     public $sortBy = "asc";
     public $search;
+
+    protected $listeners = ['delete', 'deleteCheckedCountries'];
+
+    protected $queryString = [
+            'search' => ['except' => ''],
+            'byContinent' => ['except' => ''],
+            'perPage' => ['except' => 5],
+            'orderBy' => ['except' => 'country_name'],
+            'sortBy' => ['except' => 'asc']
+        ];
 
     public function render()
     {
@@ -64,13 +73,15 @@ class Countries extends Component
             $this->checkedCountry = [];
         }
 
+        $this->limpiarCampos();
+        session()->flash('exito', 'Pais creado satisfactoriamente');
     }
 
     public function OpenEditCountryModal($id){
         $info = Country::find($id);
-        $this->upd_continent = $info->continent_id;
-        $this->upd_country_name = $info->country_name;
-        $this->upd_capital_city = $info->capital_city;
+        $this->continent = $info->continent_id;
+        $this->country_name = $info->country_name;
+        $this->capital_city = $info->capital_city;
         $this->cid = $info->id;
         $this->dispatchBrowserEvent('OpenEditCountryModal', [
             'id' => $id
@@ -81,23 +92,23 @@ class Countries extends Component
         $cid = $this->cid;
         $this->validate(
             [
-                "upd_continent" => "required",
-                "upd_country_name" => "required|unique:countries,country_name,".$cid,
-                "upd_capital_city" => "required"
+                "continent" => "required",
+                "country_name" => "required|unique:countries,country_name,".$cid,
+                "capital_city" => "required"
             ],
             [
-                "upd_continent.required" => "Debes seleccionar un continente",
-                "upd_country_name.required" => "Debes colocar un nombre de pais",
-                "upd_capital_city.unique" => "Nombre del pais ya existe",
-                "upd_capital_city.required" => "Debes colocar la ciudad capital"
+                "continent.required" => "Debes seleccionar un continente",
+                "country_name.required" => "Debes colocar un nombre de pais",
+                "capital_city.unique" => "Nombre del pais ya existe",
+                "capital_city.required" => "Debes colocar la ciudad capital"
             ]
         );
 
         $update = Country::find($cid)->update(
             [
-                'continent_id' => $this->upd_continent,
-                'country_name' => $this->upd_country_name,
-                'capital_city' => $this->upd_capital_city
+                'continent_id' => $this->continent,
+                'country_name' => $this->country_name,
+                'capital_city' => $this->capital_city
             ]
         );
 
@@ -105,6 +116,7 @@ class Countries extends Component
         {
             $this->dispatchBrowserEvent('CloseEditCountryModal');
             $this->checkedCountry = [];
+            $this->limpiarCampos();
         }
     }
 
@@ -141,13 +153,18 @@ class Countries extends Component
     public function deleteCheckedCountries($ids)
     {
         Country::whereKey($ids)->delete();
-        $this->checkedCountry = [];
+        $this->reset('checkedCountry');
 
     }
 
     public function isChecked($countryID)
     {
-        return in_array($countryID, $this->checkedCountry) ? 'bg-info text-white' : '';
+        return in_array($countryID, $this->checkedCountry) ? 'table-info' : '';
+    }
+
+    public function limpiarCampos()
+    {
+        $this->reset('continent', 'country_name', 'capital_city', 'cid');
     }
 
 }

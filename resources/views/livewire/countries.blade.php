@@ -24,6 +24,7 @@
         <div class="col-md-2">
             <label for="">Ordenar por</label>
             <select class="form-select" wire:model="orderBy">
+                <option value="">Ninguno seleccionado</option>
                 <option value="country_name">Country Name</option>
                 <option value="capital_city">Capital City</option>
             </select>
@@ -31,22 +32,29 @@
         <div class="col-md-2">
             <label for="">Orden</label>
             <select class="form-select" wire:model="sortBy">
+                <option value="">Ninguno seleccionado</option>
                 <option value="asc">ASC</option>
                 <option value="desc">DESC</option>
             </select>
         </div>
     </div>
 
-
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>Holy guacamole!</strong> You should check in on some of those fields below.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+    @if (session()->has('exito'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+           {{ session('exito') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @elseif (session()->has('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <button class="btn btn-primary btn-sm mb-3" wire:click="OpenAddCountryModal()" >Agregar nuevo pais</button>
     @if ($checkedCountry)
         <button class="btn btn-danger btn-sm mb-3 ml-3" wire:click="deleteCountries()">Paises Seleccionados ({{ count($checkedCountry) }}) </button>
     @endif
-    <table class="table table-hover table-responsive">
+    <table class="table-auto table-dark table table-responsive">
         <thead class="thead-inverse">
             <tr>
                 <th></th>
