@@ -39,7 +39,6 @@
             $('.addCountry').find('span').html('');
             $('.addCountry').find('form')[0].reset();
             $('.addCountry').modal('hide');
-            alert('Nuevo pais agregado');
         });
 
         window.addEventListener('OpenEditCountryModal', e => {

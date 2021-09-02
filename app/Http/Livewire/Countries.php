@@ -167,4 +167,9 @@ class Countries extends Component
         $this->reset('continent', 'country_name', 'capital_city', 'cid');
     }
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
 }
